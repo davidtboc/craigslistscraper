@@ -1,0 +1,8 @@
+agentql
+playwright
+pyairtable
+python-dotenv
+
+
+# To install the required packages, type in this command:
+# pip install -r requirements.txt
