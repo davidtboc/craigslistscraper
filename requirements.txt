@@ -2,7 +2,19 @@ agentql
 playwright
 pyairtable
 python-dotenv
+openai
+gspread
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+schedule
+pytz
+python-dateutil
+beautifulsoup4
 
+
+# Ensure Playwright browsers are installed after installing the package:
+# playwright install
 
 # To install the required packages, type in this command:
 # pip install -r requirements.txt
