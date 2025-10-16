@@ -37,6 +37,7 @@ client = openai.OpenAI(
 )
 print("Configuration complete. Using Perplexity API.")
 
+
 # --------------------------------------------------------------
 # 2. HTML PARSING CONFIGURATION
 # --------------------------------------------------------------
