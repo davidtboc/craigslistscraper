@@ -200,7 +200,12 @@ def extract_post_urls_and_dates_from_html(html, base_url, debug_mode=False):
     Returns:
         List of tuples: (url, is_today, date_str, parsed_date)
     """
-    soup = BeautifulSoup(html, 'lxml')
+    try:
+        soup = BeautifulSoup(html, 'lxml')  # Use lxml parser
+    except bs4.FeatureNotFound:
+        print("⚠️  lxml parser not found. Falling back to html.parser.")
+        soup = BeautifulSoup(html, 'html.parser')  # Fallback to built-in parser
+
     results = []
 
     # Debug: Save HTML if requested
@@ -511,7 +516,7 @@ def run_scraper():
     
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=False)
-        page = agentql.wrap(browser.new_page())
+        page = browser.new_page()
 
         try:
             # Navigate to search URL
@@ -606,10 +611,9 @@ def run_scraper():
                     time.sleep(1)
                     
                     # Get posting body text
-                    body_response = page.query_elements(GET_POSTING_BODY_QUERY)
-                    # Use inner_text() for AgentQL/Playwright elements, not get_text()
-                    posting_text = body_response.posting_body.inner_text()
-
+                    body_element = page.locator("#postingbody")
+                    posting_text = body_element.inner_text() if body_element else ""
+                    
                     # Analyze with LLM
                     llm_data = analyze_job_posting(posting_text)
 
