@@ -505,6 +505,16 @@ def run_scraper():
     print(f"STARTING CRAIGSLIST SCRAPER - {datetime.datetime.now()}")
     print(f"{'='*70}")
     
+    # Ask the user for a link
+    user_input_url = input("🔗 Please enter a Craigslist search URL (or press Enter to use the default): ").strip()
+    search_url = user_input_url if user_input_url else TARGET_URL
+
+    if not search_url:
+        print("❌ No URL provided and no default URL set. Exiting.")
+        return False
+
+    print(f"📍 Using search URL: {search_url}")
+    
     # Setup Google Sheets
     try:
         worksheet = setup_google_sheets()
@@ -519,8 +529,7 @@ def run_scraper():
         page = browser.new_page()
 
         try:
-            # Navigate to search URL
-            search_url = TARGET_URL if TARGET_URL else "https://newyork.craigslist.org/search/jjj?query=cashier#search=2~thumb~0"
+            # Navigate to the user-provided or default search URL
             print(f"\n📍 Navigating to: {search_url}")
             page.goto(search_url, wait_until="domcontentloaded")
 
