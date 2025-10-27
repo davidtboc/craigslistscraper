@@ -164,14 +164,14 @@ def parse_craigslist_date(date_span):
         if not date_title:
             # Fallback to display text
             if display_date.lower() == "today":
-                return True, today.strftime("%m/%d"), today
+                return True, today.strftime("%Y-%m-%d"), today
             
             try:
                 parsed_date = parser.parse(display_date).date()
                 if parsed_date.year == 1900:
                     parsed_date = parsed_date.replace(year=today.year)
                 is_today = parsed_date == today
-                return is_today, parsed_date.strftime("%m/%d"), parsed_date
+                return is_today, parsed_date.strftime("%Y-%m-%d"), parsed_date
             except:
                 return False, display_date, None
         
@@ -180,7 +180,7 @@ def parse_craigslist_date(date_span):
         parsed_date = parser.parse(date_part).date()
         
         is_today = parsed_date == today
-        formatted_date = parsed_date.strftime("%m/%d")
+        formatted_date = parsed_date.strftime("%Y-%m-%d")
         
         return is_today, formatted_date, parsed_date
         
@@ -442,6 +442,37 @@ def append_to_google_sheet(worksheet, data):
     except Exception as e:
         print(f"❌ Error adding data to Google Sheet: {e}")
         raise
+
+def generate_unique_id(worksheet):
+    """
+    Generate a unique ID in the format CL-000## based on the next available number in the Google Sheet.
+
+    Args:
+        worksheet: Google Sheets worksheet object
+
+    Returns:
+        str: The generated unique ID
+    """
+    try:
+        # Get all existing IDs from the Google Sheet
+        existing_ids = worksheet.col_values(1)  # Assuming IDs are in the first column
+        
+        # Extract the numeric part of the IDs and find the maximum
+        max_id = 0
+        for id in existing_ids:
+            if id.startswith("CL-"):
+                try:
+                    num = int(id.split("-")[1])
+                    max_id = max(max_id, num)
+                except ValueError:
+                    continue
+        
+        # Generate the next ID
+        next_id = max_id + 1
+        return f"CL-{next_id:05d}"
+    except Exception as e:
+        print(f"Error generating unique ID: {e}")
+        return "CL-00001"
 
 # --------------------------------------------------------------
 # 7. LLM ANALYSIS FUNCTION
