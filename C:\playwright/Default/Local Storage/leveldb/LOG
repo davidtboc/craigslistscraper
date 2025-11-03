@@ -1,0 +1,6 @@
+2025/11/03-14:11:30.880 2089ccd Reusing MANIFEST /Users/davidtabachnik/craigslistscraper/C:\playwright/Default/Local Storage/leveldb/MANIFEST-000001
+2025/11/03-14:11:30.884 2089ccd Recovering log #3
+2025/11/03-14:11:30.885 2089ccd Reusing old log /Users/davidtabachnik/craigslistscraper/C:\playwright/Default/Local Storage/leveldb/000003.log 
+2025/11/03-14:12:19.005 2089cd1 Level-0 table #5: started
+2025/11/03-14:12:19.009 2089cd1 Level-0 table #5: 19255 bytes OK
+2025/11/03-14:12:19.012 2089cd1 Delete type=0 #3

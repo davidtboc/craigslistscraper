@@ -378,17 +378,26 @@ def extract_email_from_page(page) -> str:
 def setup_google_sheets():
     """Sets up connection to Google Sheets."""
     print("Setting up Google Sheets connection...")
-    
-    if not os.path.exists(GOOGLE_SHEETS_CREDS_FILE):
-        raise FileNotFoundError(f"Credentials file not found: {GOOGLE_SHEETS_CREDS_FILE}")
+
+    # Check if credentials file exists in current dir, parent dir, or as absolute path
+    creds_file = GOOGLE_SHEETS_CREDS_FILE
+    if not os.path.exists(creds_file):
+        # Try parent directory
+        parent_creds = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), GOOGLE_SHEETS_CREDS_FILE)
+        if os.path.exists(parent_creds):
+            creds_file = parent_creds
+        else:
+            raise FileNotFoundError(f"Credentials file not found: {GOOGLE_SHEETS_CREDS_FILE}")
 
     scopes = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
     ]
 
+    print(f"Using credentials file: {creds_file}")
+
     try:
-        creds = Credentials.from_service_account_file(GOOGLE_SHEETS_CREDS_FILE, scopes=scopes)
+        creds = Credentials.from_service_account_file(creds_file, scopes=scopes)
         gc = gspread.authorize(creds)
         spreadsheet = gc.open_by_key(GOOGLE_SHEET_ID)
         worksheet = spreadsheet.sheet1
@@ -530,15 +539,22 @@ def analyze_job_posting(job_text: str) -> dict:
 # --------------------------------------------------------------
 # 8. MAIN SCRAPING SCRIPT
 # --------------------------------------------------------------
-def run_scraper():
+def run_scraper(url=None):
     """Main scraping function."""
     print(f"\n{'='*70}")
     print(f"STARTING CRAIGSLIST SCRAPER - {datetime.datetime.now()}")
     print(f"{'='*70}")
-    
-    # Ask the user for a link
-    user_input_url = input("🔗 Please enter a Craigslist search URL (or press Enter to use the default): ").strip()
-    search_url = user_input_url if user_input_url else TARGET_URL
+
+    # Ask the user for a link (if not provided as argument)
+    if url:
+        search_url = url
+    else:
+        try:
+            user_input_url = input("🔗 Please enter a Craigslist search URL (or press Enter to use the default): ").strip()
+            search_url = user_input_url if user_input_url else TARGET_URL
+        except EOFError:
+            # Running in non-interactive mode, use TARGET_URL or fail
+            search_url = TARGET_URL
 
     if not search_url:
         print("❌ No URL provided and no default URL set. Exiting.")
@@ -734,14 +750,14 @@ def run_scraper():
 def main():
     """Main function."""
     import sys
-    
+
     if len(sys.argv) > 1 and sys.argv[1] == "--schedule":
         pst = pytz.timezone('US/Pacific')
         schedule.every().day.at("21:00").do(run_scraper)
-        
+
         print("📅 Scheduler started. Will run daily at 9:00 PM PST.")
         print("Press Ctrl+C to stop.")
-        
+
         try:
             while True:
                 schedule.run_pending()
@@ -749,7 +765,9 @@ def main():
         except KeyboardInterrupt:
             print("\n⏹️  Scheduler stopped.")
     else:
-        success = run_scraper()
+        # Check if URL is provided as argument
+        url_arg = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else None
+        success = run_scraper(url=url_arg)
         if not success:
             print("\n❌ SCRAPER FAILED - No entries added to Google Sheets")
             sys.exit(1)
