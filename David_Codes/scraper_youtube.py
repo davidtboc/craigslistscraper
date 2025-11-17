@@ -54,14 +54,14 @@ def scrape_indeed(playwright):
 
     all_items = []
 
-    for job in jobs:
+    for job in jobs[:20]:
 
         print("SCRAPING DETAILS PAGE")
 
         
         page.goto(job['URL'])
 
-        time.sleep(2)
+        time.sleep(4)
 
         item = {}
 
@@ -76,13 +76,13 @@ def scrape_indeed(playwright):
         reply_button = page.locator('button.reply-button.js-only')
         if reply_button.count() > 0:
             reply_button.first.click()
-            time.sleep(2)  # wait for modal to appear
+            time.sleep(4)  # wait for modal to appear
             
             # 4️⃣ Click the "Email" option
             email_button = page.locator('button.reply-option-header >> text=email')
             if email_button.count() > 0:
                 email_button.first.click()
-                time.sleep(1)  # wait for email input to appear
+                time.sleep(4)  # wait for email input to appear
                 
                 # 5️⃣ Grab the email from the input field
                 email_input = page.locator('input')  # Craigslist usually puts the email in an input field
